@@ -81,7 +81,7 @@ export default function SignupForm() {
           </div>
         </div>
       </div>
-      <Button className="w-full mt-4" disable={loading}>
+      <Button className="w-full mt-4" disabled={loading}>
         {loading ? "Signing Up..." : "Sign Up"}
       </Button>
     </form>

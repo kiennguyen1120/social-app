@@ -4,10 +4,15 @@ import { Button } from "@/components/ui/button";
 import { LogOut, UserPlus } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import useLogout from "@/hooks/useLogout";
+import { Link } from "react-router-dom";
+import useGetSuggestedUsers from "@/hooks/useGetSuggestedUsers";
+import SuggestedUser from "./SuggestedUser";
+import useUserProfileStore from "@/store/userProfileStore";
+import ProfileUserImg from "../../assets/profile-user.jpg";
 
-export default function RightSidebar({ suggestedUsers }) {
+export default function RightSidebar() {
   const { handleLogout, isLoggingOut } = useLogout();
-
+  const { isLoading, suggestedUsers } = useGetSuggestedUsers();
   const authUser = useAuthStore((state) => state.user);
   if (!authUser) return null;
 
@@ -15,13 +20,21 @@ export default function RightSidebar({ suggestedUsers }) {
     <aside className="hidden lg:block w-80 bg-white border-l p-4">
       <div className="space-y-4 mb-3">
         <div className="flex items-center">
-          <Avatar className="h-10 w-10 mr-3">
-            <AvatarImage src={authUser.avatar} alt={authUser.username} />
-            <AvatarFallback>{authUser.username}</AvatarFallback>
-          </Avatar>
+          <Link to={`${authUser.username}`}>
+            <Avatar className="h-10 w-10 mr-3">
+              <AvatarImage
+                src={authUser.profilePicURL || ProfileUserImg}
+                alt={authUser.username}
+              />
+              <AvatarFallback>{authUser.username}</AvatarFallback>
+            </Avatar>
+          </Link>
+
           <div className="flex-grow">
-            <p className="text-sm font-medium">{authUser.username}</p>
-            <p className="text-xs text-gray-500"> friends</p>
+            <Link to={`${authUser.username}`}>
+              {" "}
+              <p className="text-sm font-medium">{authUser.username}</p>
+            </Link>
           </div>
           <Button variant="outline" size="sm" onClick={handleLogout}>
             <LogOut className="h-4 w-4 mr-1" />
@@ -32,24 +45,13 @@ export default function RightSidebar({ suggestedUsers }) {
 
       <h2 className="font-semibold mb-4">Suggested Users</h2>
       <div className="space-y-4">
-        {suggestedUsers.map((user) => (
-          <div key={user.id} className="flex items-center">
-            <Avatar className="h-10 w-10 mr-3">
-              <AvatarImage src={user.avatar} alt={user.username} />
-              <AvatarFallback>{user.username[0]}</AvatarFallback>
-            </Avatar>
-            <div className="flex-grow">
-              <p className="text-sm font-medium">{user.username}</p>
-              <p className="text-xs text-gray-500">
-                {user.mutualFriends} friends
-              </p>
-            </div>
-            <Button variant="outline" size="sm">
-              <UserPlus className="h-4 w-4 mr-1" />
-              Follow
-            </Button>
-          </div>
-        ))}
+        {suggestedUsers.length === 0 ? (
+          <p className="text-sm font-medium">No suggested users found.</p>
+        ) : (
+          suggestedUsers.map((user) => (
+            <SuggestedUser user={user} key={user.id} />
+          ))
+        )}
       </div>
     </aside>
   );
